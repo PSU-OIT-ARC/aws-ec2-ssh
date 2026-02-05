@@ -41,7 +41,7 @@ fi
 # Specify a comma seperated list of IAM groups for users who should be given sudo privileges.
 # Leave empty to not change sudo access, or give the value '##ALL## to have all users
 # be given sudo rights.
-: ${SUDOERS_GROUPS:="${SUDOERSGROUP}"}
+: ${SUDOERS_GROUPS:="${SUDOERS_GROUPS}"}
 
 # Assume a role before contacting AWS IAM to get users and keys.
 # This can be used if you define your users in one AWS account, while the EC2

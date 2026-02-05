@@ -32,8 +32,11 @@ EOF
 }
 
 export SSHD_CONFIG_FILE="/etc/ssh/sshd_config"
-export AUTHORIZED_KEYS_COMMAND_FILE="/opt/authorized_keys_command.sh"
+export AUTHORIZED_KEYS_COMMAND_FILE="/opt/authorized_keys_command.py"
+export AUTHORIZED_KEYS_COMMAND_USER="nobody"
+export AUTHORIZED_KEYS_DATABASE="/opt/authorized_keys.db"
 export IMPORT_USERS_SCRIPT_FILE="/opt/import_users.sh"
+export IMPORT_PUBKEYS_SCRIPT_FILE="/opt/import_pubkeys.py"
 export MAIN_CONFIG_FILE="/etc/aws-ec2-ssh.conf"
 
 IAM_GROUPS=""
@@ -44,9 +47,10 @@ USERADD_PROGRAM=""
 USERADD_ARGS=""
 USERDEL_PROGRAM=""
 USERDEL_ARGS=""
-RELEASE="master"
+RELEASE="main"
 
-while getopts :hva:i:l:s:p:u:d:f:r: opt
+optstring=hva:i:l:s:p:u:d:f:r:
+while getopts $optstring opt
 do
     case $opt in
         h)
@@ -120,12 +124,13 @@ tmpdir=$(mktemp -d)
 
 cd "$tmpdir"
 
-git clone -b "$RELEASE" https://github.com/widdix/aws-ec2-ssh.git
+git clone -b "$RELEASE" https://github.com/PSU-OIT-ARC/aws-ec2-ssh
 
 cd "$tmpdir/aws-ec2-ssh"
 
-cp authorized_keys_command.sh $AUTHORIZED_KEYS_COMMAND_FILE
+cp authorized_keys_command.py $AUTHORIZED_KEYS_COMMAND_FILE
 cp import_users.sh $IMPORT_USERS_SCRIPT_FILE
+cp import_pubkeys.py $IMPORT_PUBKEYS_SCRIPT_FILE
 
 if [ "${IAM_GROUPS}" != "" ]
 then
@@ -181,5 +186,20 @@ EOF
 chmod 0644 /etc/cron.d/import_users
 
 $IMPORT_USERS_SCRIPT_FILE
+
+cat > /etc/cron.d/import_pubkeys << EOF
+SHELL=/bin/bash
+PATH=/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/aws/bin
+MAILTO=root
+HOME=/
+*/5 * * * * root $IMPORT_PUBKEYS_SCRIPT_FILE
+EOF
+chmod 0644 /etc/cron.d/import_pubkeys
+
+$IMPORT_PUBKEYS_SCRIPT_FILE
+
+chown nobody ${AUTHORIZED_KEYS_DATABASE}
+chgrp root ${AUTHORIZED_KEYS_DATABASE}
+chmod 0640 ${AUTHORIZED_KEYS_DATABASE}
 
 ./install_restart_sshd.sh
