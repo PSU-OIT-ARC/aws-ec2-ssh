@@ -32,7 +32,8 @@ EOF
 }
 
 export SSHD_CONFIG_FILE="/etc/ssh/sshd_config"
-export AUTHORIZED_KEYS_COMMAND_FILE="/opt/authorized_keys_command.py"
+export AUTHORIZED_KEYS_COMMAND_FILE_SH="/opt/authorized_keys_command.sh"
+export AUTHORIZED_KEYS_COMMAND_FILE_PY="/opt/authorized_keys_command.py"
 export AUTHORIZED_KEYS_COMMAND_USER="nobody"
 export AUTHORIZED_KEYS_DATABASE="/opt/authorized_keys.db"
 export IMPORT_USERS_SCRIPT_FILE="/opt/import_users.sh"
@@ -128,7 +129,8 @@ git clone -b "$RELEASE" https://github.com/PSU-OIT-ARC/aws-ec2-ssh
 
 cd "$tmpdir/aws-ec2-ssh"
 
-cp authorized_keys_command.py $AUTHORIZED_KEYS_COMMAND_FILE
+cp authorized_keys_command.sh $AUTHORIZED_KEYS_COMMAND_FILE_SH
+cp authorized_keys_command.py $AUTHORIZED_KEYS_COMMAND_FILE_PY
 cp import_users.sh $IMPORT_USERS_SCRIPT_FILE
 cp import_pubkeys.py $IMPORT_PUBKEYS_SCRIPT_FILE
 
